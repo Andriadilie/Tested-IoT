@@ -1,0 +1,106 @@
+<!-- Template Dashboard IoT yang sudah dikembangkan dan dipercantik -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>IoT Sensor Dashboard</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f2f6fa;
+    }
+    header {
+      background: #304ffe;
+      padding: 15px 25px;
+      color: #fff;
+      font-size: 22px;
+      font-weight: bold;
+    }
+    .container {
+      padding: 20px;
+    }
+    .card {
+      background: #fff;
+      padding: 20px;
+      margin-bottom: 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+    .sensor-value {
+      font-size: 32px;
+      font-weight: bold;
+      margin-top: 10px;
+      color: #304ffe;
+    }
+    .logout-btn {
+      background: #ff5252;
+      padding: 10px 18px;
+      border: none;
+      border-radius: 8px;
+      color: #fff;
+      cursor: pointer;
+      float: right;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    IoT Dashboard
+    <button class="logout-btn" onclick="logout()">Logout</button>
+  </header>
+
+  <div class="container">
+    <div class="card">
+      <h3>Suhu (°C)</h3>
+      <div id="tempValue" class="sensor-value">--</div>
+    </div>
+
+    <div class="card">
+      <h3>Kelembaban (%)</h3>
+      <div id="humValue" class="sensor-value">--</div>
+    </div>
+
+    <div class="card">
+      <h3>Cahaya (LDR)</h3>
+      <div id="ldrValue" class="sensor-value">--</div>
+    </div>
+  </div>
+
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database.js"></script>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "YOUR_API_KEY",
+      authDomain: "YOUR_PROJECT.firebaseapp.com",
+      databaseURL: "YOUR_DATABASE_URL",
+      projectId: "YOUR_PROJECT_ID",
+    };
+
+    const app = firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.database();
+
+    function logout() {
+      auth.signOut().then(() => {
+        alert("Logout berhasil!");
+        window.location.href = "login.html";
+      });
+    }
+
+    function updateSensor(sensor, value) {
+      document.getElementById(sensor).textContent = value;
+    }
+
+    db.ref("sensor").on("value", (snapshot) => {
+      const data = snapshot.val();
+      updateSensor("tempValue", data.temperature);
+      updateSensor("humValue", data.humidity);
+      updateSensor("ldrValue", data.ldr);
+    });
+  </script>
+</body>
+</html>
