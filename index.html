@@ -1,0 +1,228 @@
+<!-- Dashboard IoT Premium + Sidebar + Animasi + Login/Logout Interaktif -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>IoT Sensor Dashboard</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet" />
+
+  <style>
+    body {
+      margin: 0;
+      font-family: "Poppins", sans-serif;
+      background: #eef1f7;
+      display: flex;
+    }
+
+    /* SIDEBAR */
+    .sidebar {
+      width: 250px;
+      height: 100vh;
+      background: #1e2a78;
+      color: white;
+      position: fixed;
+      left: 0;
+      top: 0;
+      padding-top: 35px;
+      box-shadow: 3px 0 10px rgba(0,0,0,0.25);
+      animation: slideIn 0.6s ease;
+    }
+
+    @keyframes slideIn {
+      from { left: -300px; opacity: 0; }
+      to { left: 0; opacity: 1; }
+    }
+
+    .sidebar h2 {
+      text-align: center;
+      margin-bottom: 30px;
+      font-weight: 600;
+    }
+
+    .sidebar a {
+      display: block;
+      padding: 14px 25px;
+      text-decoration: none;
+      color: #cfd7ff;
+      font-size: 16px;
+      transition: 0.25s;
+    }
+
+    .sidebar a:hover {
+      background: #304ffe;
+      color: white;
+      padding-left: 35px;
+    }
+
+    /* MAIN CONTENT */
+    .content {
+      margin-left: 250px;
+      width: calc(100% - 250px);
+      min-height: 100vh;
+    }
+
+    header {
+      background: linear-gradient(90deg, #304ffe, #536dfe);
+      padding: 20px 30px;
+      color: #ffffff;
+      font-size: 24px;
+      font-weight: 600;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+      animation: fadeDown 0.7s ease;
+    }
+
+    @keyframes fadeDown {
+      from { opacity: 0; transform: translateY(-20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .logout-btn {
+      background: #ff4b5c;
+      padding: 10px 22px;
+      border: none;
+      border-radius: 10px;
+      color: #fff;
+      font-weight: 600;
+      cursor: pointer;
+      transition: 0.25s;
+      box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+    }
+
+    .logout-btn:hover {
+      background: #ff1f38;
+      transform: scale(1.05);
+    }
+
+    .container {
+      padding: 30px;
+      max-width: 1100px;
+      margin: auto;
+    }
+
+    /* CARD SENSOR */
+    .card {
+      background: #ffffff;
+      padding: 28px;
+      margin-bottom: 28px;
+      border-radius: 18px;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.12);
+      border-left: 7px solid #3d5afe;
+      transition: transform .25s, box-shadow .25s;
+      animation: popIn 0.5s ease;
+    }
+
+    @keyframes popIn {
+      from { opacity: 0; transform: scale(0.9); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    .card:hover {
+      transform: scale(1.02);
+      box-shadow: 0 10px 25px rgba(0,0,0,0.18);
+    }
+
+    .card h3 {
+      margin: 0;
+      font-size: 20px;
+      font-weight: 600;
+      color: #263238;
+    }
+
+    .sensor-value {
+      font-size: 42px;
+      margin-top: 12px;
+      font-weight: 700;
+      color: #304ffe;
+      text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+      animation: valuePop 0.4s ease;
+    }
+
+    @keyframes valuePop {
+      0% { transform: scale(0.8); opacity: 0; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+  </style>
+</head>
+
+<body>
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <h2>📡 IoT Menu</h2>
+    <a href="#">Dashboard</a>
+    <a href="#">Grafik Sensor</a>
+    <a href="#">Device Status</a>
+    <a href="#">Pengaturan</a>
+  </div>
+
+  <!-- MAIN CONTENT -->
+  <div class="content">
+    <header>
+      IoT Dashboard
+      <button class="logout-btn" onclick="logout()">Logout</button>
+    </header>
+
+    <!-- HTML untuk halaman dashboard -->
+    <div class="container">
+      <div class="card">
+        <h3>🌡 Suhu (°C)</h3>
+        <div id="tempValue" class="sensor-value">--</div>
+      </div>
+
+      <div class="card">
+        <h3>💧 Kelembaban (%)</h3>
+        <div id="humValue" class="sensor-value">--</div>
+      </div>
+
+      <div class="card">
+        <h3>🔆 Cahaya (LDR)</h3>
+        <div id="ldrValue" class="sensor-value">--</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database.js"></script>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "YOUR_API_KEY",
+      authDomain: "YOUR_PROJECT.firebaseapp.com",
+      databaseURL: "YOUR_DATABASE_URL",
+      projectId: "YOUR_PROJECT_ID",
+    };
+
+    const app = firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.database();
+
+    // Login dan Logout Interaktif
+    function logout() {
+      if (confirm("Apakah Anda yakin ingin logout?")) {
+        auth.signOut().then(() => {
+          alert("Logout berhasil!");
+          window.location.href = "login.html";
+        });
+      }
+    }
+
+    // Menampilkan data sensor
+    function updateSensor(sensor, value) {
+      document.getElementById(sensor).textContent = value;
+    }
+
+    db.ref("sensor").on("value", (snapshot) => {
+      const data = snapshot.val();
+      updateSensor("tempValue", data.temperature);
+      updateSensor("humValue", data.humidity);
+      updateSensor("ldrValue", data.ldr);
+    });
+  </script>
+</body>
+</html>
